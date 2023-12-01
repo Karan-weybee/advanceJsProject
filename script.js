@@ -42,31 +42,31 @@ function dataModel(id, index) {
 function getModelInfo(data, id) {
     const films = [...data.films];
     const species = [...data.species];
-    const homeworld=data.homeworld;
-  var filmObj=[];
-  var speciesObj=[];
-  var homeworlds=[];
+    const homeworld = data.homeworld;
+    var filmObj = [];
+    var speciesObj = [];
+    var homeworlds = [];
 
-    var sp=[films,[homeworld],species];
-     Promise.all(sp.map(ins => Promise.all(ins.map(i => getJSON(i))))).
+    var sp = [films, [homeworld], species];
+    Promise.all(sp.map(ins => Promise.all(ins.map(i => getJSON(i))))).
         then(res => {
-           [[filmObj], [homeworlds], speciesObj] = res;
-        
-        const filmTitles = res[0].map(d => d.title);
-        const speciesNames = res[2].map(d => d.name);
+            [[filmObj], [homeworlds], speciesObj] = res;
 
-        const modelInfo = {
-            "id": id,
-            "name": data.name,
-            "birthYear": data.birth_year,
-            "gender": data.gender,
-            "filmTitles": filmTitles,
-            "speciesNames": speciesNames,
-            "homeworld": res[1][0].name
-        };
-        console.log(modelInfo)
-        updateSingleModel(modelInfo);
-        }); 
+            const filmTitles = res[0].map(d => d.title);
+            const speciesNames = res[2].map(d => d.name);
+
+            const modelInfo = {
+                "id": id,
+                "name": data.name,
+                "birthYear": data.birth_year,
+                "gender": data.gender,
+                "filmTitles": filmTitles,
+                "speciesNames": speciesNames,
+                "homeworld": res[1][0].name
+            };
+            console.log(modelInfo)
+            updateSingleModel(modelInfo);
+        });
 }
 
 
