@@ -1,6 +1,7 @@
 const peopleApi = "https://swapi.dev/api/people";
 const Model = document.getElementsByClassName('image-name');
 var count = 1;
+var singleData;
 
 async function renderImages(count) {
 
@@ -11,28 +12,23 @@ async function renderImages(count) {
 
         var detail = new Array();
         detail = data.results;
-        var id = detail[i - 1].url.slice(29, detail[i - 1].url.length-1);
-      //  var id = ids.slice(0, ids.length - 1);
-        console.log(id)
+        var id = detail[i - 1].url.slice(29, detail[i - 1].url.length - 1);
+        singleData = detail;
         console.log(detail)
-        var image = `<div class="image-name" id="image${id}"><img onclick="dataModel(${id})" class="image" src="https://starwars-visualguide.com/assets/img/characters/${id}.jpg" alt="" srcset="" data-toggle="modal" data-target="#exampleModal"><div class="name">${data.results[i - 1].name}</div></div>`
+        var image = `<div class="image-name" id="image${id}"><img onclick="dataModel(${id},${i})" class="image" src="https://starwars-visualguide.com/assets/img/characters/${id}.jpg" alt="" srcset="" data-toggle="modal" data-target="#exampleModal"><div class="name">${data.results[i - 1].name}</div></div>`
         document.getElementById('images').insertAdjacentHTML('beforeend', image);
 
 
     }
 }
 
-function dataModel(id) {
+function dataModel(id, index) {
     defaultModel();
     document.getElementById('model-content').style.display = 'none';
     document.getElementById('model-loading').style.display = 'block';
+    console.log(singleData[index - 1])
 
-
-    fetch(peopleApi + `/${id}`)
-        .then(res => res.json())  // Parse the response as JSON
-        .then(data => {
-            getModelInfo(data, id)
-        });
+    getModelInfo(singleData[index - 1], id)
 
 
 }
