@@ -1,16 +1,23 @@
 const peopleApi = "https://swapi.dev/api/people";
 const images = $('#images');
-let count = 1;
+var count = 1;
 let singleData;
 
 // for mapping images with name and pass data
 async function renderImages(count) {
+    count == 1 ? $('#prev-slide').hide() : $('#prev-slide').show();
+
     images.html(" ");
     $('#page-loading').show();
     const res = await fetch(peopleApi + `/?page=${count}`);
     const data = await res.json();
-   
-    
+    if (res.status == 404) {
+        alert("Data Not available...")
+        $('#next-slide').hide();
+    } else {
+        $('#next-slide').show();
+    }
+
     $.each(data.results, function (i, item) {
         const id = item.url.slice(29, item.url.length - 1);
         singleData = data.results;
@@ -59,6 +66,7 @@ async function getModelInfo(data, id) {
 
 // fill the API data into the default model
 function updateSingleModel(modelInfo) {
+    console.log(modelInfo)
     $('#People-name').html(`${modelInfo.name}`);
     $('#image-data').attr('src', `https://starwars-visualguide.com/assets/img/characters/${modelInfo.id}.jpg`);
     $('#People-Gender').html(`Gender :- ${modelInfo.gender}`);
@@ -66,13 +74,11 @@ function updateSingleModel(modelInfo) {
     $('#People-Homeworld').html(`Homeworld :- ${modelInfo.homeworld}`);
     const species = modelInfo.speciesNames.join(' , ');
     const films = modelInfo.filmTitles.join(' , ');
+    console.log(typeof species)
 
-    if (species != null) {
-        $('#People-Species').html(`Species:- ${species}`);
-    }
-    if (films != null) {
-        $('#People-films').html(`films :- ${films}`);
-    }
+    species.length == 0 ? $('#People-Species').html(`Species:- Unknown`) : $('#People-Species').html(`Species:- ${species}`);
+    films.length == 0 ? $('#People-films').html(`films :- Unknown`) : $('#People-films').html(`films :- ${films}`);
+
 
     $('#model-content').show();
     $('#model-loading').hide();
@@ -133,11 +139,10 @@ function nextSlide() {
 $('#prev-slide').on('click', function (e) {
     e.preventDefault();
     console.log(`previous slide`);
-    if (count > 1) {
-        renderImages(--count);
-    } else {
-        alert("Prev slide data not available...");
-    }
+
+    renderImages(--count);
+    $('#prev-slide').show();
+
 });
 
 renderApp();
