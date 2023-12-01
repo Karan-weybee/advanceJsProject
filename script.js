@@ -39,30 +39,48 @@ function dataModel(id, index) {
 }
 
 // it gives all data of the model
-async function getModelInfo(data, id) {
+function getModelInfo(data, id) {
     const films = [...data.films];
     const species = [...data.species];
-    const homeworld = await fetch(data.homeworld).then(res => res.json()).then(data => { return data; });
+    const homeworld=data.homeworld;
+  var filmObj=[];
+  var speciesObj=[];
+  var homeworlds=[];
 
-    const filmResponses = await Promise.all(films.map(url => fetch(url)));
-    const filmObj = await Promise.all(filmResponses.map(response => response.json()));
-    const filmTitles = filmObj.map(d => d.title);
+    var sp=[films,[homeworld],species];
+     Promise.all(sp.map(ins => Promise.all(ins.map(i => getJSON(i))))).
+        then(res => {
+           [[filmObj], [homeworlds], speciesObj] = res;
+        
+        const filmTitles = res[0].map(d => d.title);
+        const speciesNames = res[2].map(d => d.name);
 
-    const speciesResponses = await Promise.all(species.map(url => fetch(url)));
-    const speciesObj = await Promise.all(speciesResponses.map(response => response.json()));
-    const speciesNames = speciesObj.map(d => d.name);
-
-    const modelInfo = {
-        "id": id,
-        "name": data.name,
-        "birthYear": data.birth_year,
-        "gender": data.gender,
-        "filmTitles": filmTitles,
-        "speciesNames": speciesNames,
-        "homeworld": homeworld.name
-    };
-    updateSingleModel(modelInfo);
+        const modelInfo = {
+            "id": id,
+            "name": data.name,
+            "birthYear": data.birth_year,
+            "gender": data.gender,
+            "filmTitles": filmTitles,
+            "speciesNames": speciesNames,
+            "homeworld": res[1][0].name
+        };
+        console.log(modelInfo)
+        updateSingleModel(modelInfo);
+        }); 
 }
+
+
+const getJSON = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Network response was not ok.');
+        }
+        return response.json();
+    } catch (error) {
+        throw new Error(`Fetch failed: ${error.message}`);
+    }
+};
 
 // fill the API data into the default model
 function updateSingleModel(modelInfo) {
