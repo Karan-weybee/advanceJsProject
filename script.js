@@ -131,18 +131,13 @@ function renderApp() {
 
 // for next page
 function nextSlide() {
-    //console.log(`next slide`);
     renderImages(++count);
 }
 
 // for previous page
 $('#prev-slide').on('click', function (e) {
     e.preventDefault();
-    //console.log(`previous slide`);
-
     renderImages(--count);
-    $('#prev-slide').show();
-
 });
 
 renderApp();
