@@ -1,66 +1,51 @@
 const peopleApi = "https://swapi.dev/api/people";
-const Model = document.getElementsByClassName('image-name');
-var count = 1;
-var singleData;
+const images = $('#images');
+let count = 1;
+let singleData;
 
+// for mapping images with name and pass data
 async function renderImages(count) {
-
+    images.html(" ");
+    $('#page-loading').show();
     const res = await fetch(peopleApi + `/?page=${count}`);
     const data = await res.json();
-    document.getElementById('images').innerHTML = " ";
-    for (let i = 1; i < data.results.length + 1; i++) {
-
-        var detail = new Array();
-        detail = data.results;
-        var id = detail[i - 1].url.slice(29, detail[i - 1].url.length - 1);
-        singleData = detail;
-        console.log(detail)
-        var image = `<div class="image-name" id="image${id}"><img onclick="dataModel(${id},${i})" class="image" src="https://starwars-visualguide.com/assets/img/characters/${id}.jpg" alt="" srcset="" data-toggle="modal" data-target="#exampleModal"><div class="name">${data.results[i - 1].name}</div></div>`
-        document.getElementById('images').insertAdjacentHTML('beforeend', image);
-
-
-    }
+   
+    
+    $.each(data.results, function (i, item) {
+        const id = item.url.slice(29, item.url.length - 1);
+        singleData = data.results;
+        console.log(singleData)
+        const image = `<div class="image-name" id="image${id}">
+                            <img onclick="dataModel(${id},${i + 1})" class="image" src="https://starwars-visualguide.com/assets/img/characters/${id}.jpg" alt="" srcset="" data-toggle="modal" data-target="#exampleModal">
+                            <div class="name">${item.name}</div>
+                        </div>`;
+        images.append(image);
+    });
+    $('#page-loading').hide();
 }
 
 function dataModel(id, index) {
     defaultModel();
-    document.getElementById('model-content').style.display = 'none';
-    document.getElementById('model-loading').style.display = 'block';
-    console.log(singleData[index - 1])
-
-    getModelInfo(singleData[index - 1], id)
-
-
+    $('#model-content').hide();
+    $('#model-loading').show();
+    getModelInfo(singleData[index - 1], id);
 }
+
+// it gives all data of the model
 async function getModelInfo(data, id) {
+    const films = [...data.films];
+    const species = [...data.species];
+    const homeworld = await fetch(data.homeworld).then(res => res.json()).then(data => { return data; });
 
-    var films = [...data.films];
-    var filmTitles = [];
-    var species = [...data.species]
-    var speciesNames = [];
+    const filmResponses = await Promise.all(films.map(url => fetch(url)));
+    const filmObj = await Promise.all(filmResponses.map(response => response.json()));
+    const filmTitles = filmObj.map(d => d.title);
 
-    var homeworld = await fetch(data.homeworld).then(res => res.json()).then(data => { return data })
-    //for find file title
-    const filmResponses =
-        await Promise.all(films.map(url => fetch(url)));
+    const speciesResponses = await Promise.all(species.map(url => fetch(url)));
+    const speciesObj = await Promise.all(speciesResponses.map(response => response.json()));
+    const speciesNames = speciesObj.map(d => d.name);
 
-    var filmObj = await
-        Promise.all(filmResponses.map(response => response.json()));
-    filmTitles = filmObj.map(d => d.title);
-    console.log(filmObj.map(d => d.title))
-
-    //for find species name
-    const speciesResponses =
-        await Promise.all(species.map(url => fetch(url)));
-
-    var speciesObj = await
-        Promise.all(speciesResponses.map(response => response.json()));
-    speciesNames = speciesObj.map(d => d.name);
-    console.log(speciesNames)
-
-    //console.log(homeworld.name)
-
-    var modelInfo = {
+    const modelInfo = {
         "id": id,
         "name": data.name,
         "birthYear": data.birth_year,
@@ -68,92 +53,91 @@ async function getModelInfo(data, id) {
         "filmTitles": filmTitles,
         "speciesNames": speciesNames,
         "homeworld": homeworld.name
-    }
-    updateSingleModel(modelInfo)
+    };
+    updateSingleModel(modelInfo);
 }
 
-
+// fill the API data into the default model
 function updateSingleModel(modelInfo) {
-    console.log(modelInfo)
-    document.getElementById('People-name').innerHTML = `${modelInfo.name}`
-    document.getElementById('image-data').src = `https://starwars-visualguide.com/assets/img/characters/${modelInfo.id}.jpg`
-    document.getElementById('People-Gender').innerHTML = `Gender :- ${modelInfo.gender}`
-    document.getElementById('People-Birth').innerHTML = `Birthday year:- ${modelInfo.birthYear}`
-    document.getElementById('People-Homeworld').innerHTML = `Homeworld :- ${modelInfo.homeworld}`
-    const species = modelInfo.speciesNames.map(obj => obj).join(' , ');
-    const films = modelInfo.filmTitles.map(obj => obj).join(' , ');
+    $('#People-name').html(`${modelInfo.name}`);
+    $('#image-data').attr('src', `https://starwars-visualguide.com/assets/img/characters/${modelInfo.id}.jpg`);
+    $('#People-Gender').html(`Gender :- ${modelInfo.gender}`);
+    $('#People-Birth').html(`Birthday year:- ${modelInfo.birthYear}`);
+    $('#People-Homeworld').html(`Homeworld :- ${modelInfo.homeworld}`);
+    const species = modelInfo.speciesNames.join(' , ');
+    const films = modelInfo.filmTitles.join(' , ');
+
     if (species != null) {
-        document.getElementById('People-Species').innerHTML = `Species:- ${species}`
+        $('#People-Species').html(`Species:- ${species}`);
     }
     if (films != null) {
-        document.getElementById('People-films').innerHTML = `films :- ${films}`
+        $('#People-films').html(`films :- ${films}`);
     }
-    document.getElementById('model-loading').style.display = 'none';
-    document.getElementById('model-content').style.display = 'block';
+
+    $('#model-content').show();
+    $('#model-loading').hide();
 }
 
-
+// for empty model
 function defaultModel() {
-    var modelData = ` <div class="modal fade" id="exampleModal" tabindex="-1"
-    role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">  <div class="modal-dialog" role="document">
-    <div class="modal-content" id="model-content">
-        <!-- Modal heading -->
-        <div class="modal-header">
-        <h3 class="modal-title" id="People-name">
-        
-    </h3>
-            <button type="button" class="close"
-                data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">
-                    ×
-                </span>
-            </button>
-        </div>
-        <!-- Modal body with image -->
-        <div class="modal-body">
-            <div class="contant" >
-                <img id="image-data" src="" />
-            </div>
-          <div class="detail">
-            <ul>
-                <li id=People-Birth></li>
-                <li id=People-Gender ></li>
-                <li id=People-Species ></li>
-                <li id=People-Homeworld ></li>
-                <li id=People-films > </li>
-            </ul>
-          </div>
+    const modelData = `<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content" id="model-content">
+                                    <!-- Modal heading -->
+                                    <div class="modal-header">
+                                        <h3 class="modal-title" id="People-name"></h3>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">×</span>
+                                        </button>
+                                    </div>
+                                    <!-- Modal body with image -->
+                                    <div class="modal-body">
+                                        <div class="contant">
+                                            <img id="image-data" src="" />
+                                        </div>
+                                        <div class="detail">
+                                            <ul>
+                                                <li id="People-Birth"></li>
+                                                <li id="People-Gender"></li>
+                                                <li id="People-Species"></li>
+                                                <li id="People-Homeworld"></li>
+                                                <li id="People-films"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="model-loading" style="cursor:pointer">
+                                    <div class="loader">
+                                    <!-- <span>Page</span> <span>Loading</span><span>...</span> -->
+                                        <img src="https://media.giphy.com/media/5AtXMjjrTMwvK/giphy.gif" alt="" srcset="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
 
-        </div>
-    </div>
-    <div id=model-loading style="cursor:pointer"><span>Loading...</span></div>
-</div></div>`;
-
-    //  document.getElementById('exampleModal').innerHTML = '';
-    document.querySelector('body').insertAdjacentHTML('beforeend', modelData);
-
+    $('body').append(modelData);
 }
 
-
+// render page
 function renderApp() {
     renderImages(count);
 }
 
-renderApp();
+// for next page
 function nextSlide() {
-
-    console.log(`next slide`)
+    console.log(`next slide`);
     renderImages(++count);
 }
-document.getElementById('prev-slide').addEventListener('click', function (e) {
+
+// for previous page
+$('#prev-slide').on('click', function (e) {
     e.preventDefault();
-    console.log(`previous slide`)
+    console.log(`previous slide`);
     if (count > 1) {
         renderImages(--count);
-    }
-    else {
-        alert("Prev slide data not available...")
+    } else {
+        alert("Prev slide data not available...");
     }
 });
 
+renderApp();
