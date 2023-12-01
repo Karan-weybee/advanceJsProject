@@ -21,7 +21,7 @@ async function renderImages(count) {
     $.each(data.results, function (i, item) {
         const id = item.url.slice(29, item.url.length - 1);
         singleData = data.results;
-        console.log(singleData)
+        //console.log(singleData)
         const image = `<div class="image-name" id="image${id}">
                             <img onclick="dataModel(${id},${i + 1})" class="image" src="https://starwars-visualguide.com/assets/img/characters/${id}.jpg" alt="" srcset="" data-toggle="modal" data-target="#exampleModal">
                             <div class="name">${item.name}</div>
@@ -66,7 +66,7 @@ async function getModelInfo(data, id) {
 
 // fill the API data into the default model
 function updateSingleModel(modelInfo) {
-    console.log(modelInfo)
+    //console.log(modelInfo)
     $('#People-name').html(`${modelInfo.name}`);
     $('#image-data').attr('src', `https://starwars-visualguide.com/assets/img/characters/${modelInfo.id}.jpg`);
     $('#People-Gender').html(`Gender :- ${modelInfo.gender}`);
@@ -74,7 +74,7 @@ function updateSingleModel(modelInfo) {
     $('#People-Homeworld').html(`Homeworld :- ${modelInfo.homeworld}`);
     const species = modelInfo.speciesNames.join(' , ');
     const films = modelInfo.filmTitles.join(' , ');
-    console.log(typeof species)
+    //console.log(typeof species)
 
     species.length == 0 ? $('#People-Species').html(`Species:- Unknown`) : $('#People-Species').html(`Species:- ${species}`);
     films.length == 0 ? $('#People-films').html(`films :- Unknown`) : $('#People-films').html(`films :- ${films}`);
@@ -131,14 +131,14 @@ function renderApp() {
 
 // for next page
 function nextSlide() {
-    console.log(`next slide`);
+    //console.log(`next slide`);
     renderImages(++count);
 }
 
 // for previous page
 $('#prev-slide').on('click', function (e) {
     e.preventDefault();
-    console.log(`previous slide`);
+    //console.log(`previous slide`);
 
     renderImages(--count);
     $('#prev-slide').show();
