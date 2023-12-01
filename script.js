@@ -1,17 +1,30 @@
 const peopleApi = "https://swapi.dev/api/people";
 const images = $('#images');
-const nextPage=$('#next-slide');
-const prevPage=$('#prev-slide');
-const pageLoader=$('#page-loading');
+const nextSlideBtn = $('#next-slide');
+const prevSlideBtn = $('#prev-slide');
+const pageLoader = $('#page-loading');
+const modelLoader=$('#model-loading');
+
 var count = 1;
 let singleData;
+
+var modalDetails = {
+    peopleName: $('#People-name'),
+    imageData: $('#image-data'),
+    peopleGender: $('#People-Gender'),
+    peopleBirth: $('#People-Birth'),
+    Homeworld: $('#People-Homeworld'),
+    peopleSpecies: $('#People-Species'),
+    films: $('#People-films')
+}
+
 
 // for mapping images with name and pass data onclick
 async function renderImages(count) {
 
-    const res = await fetch(peopleApi + `/?page=${count}`); 
+    const res = await fetch(peopleApi + `/?page=${count}`);
     const data = await res.json();
-    res.status == 404 ? alert("Data Not available...") || nextPage.hide() : nextPage.show();
+    res.status == 404 ? alert("Data Not available...") || nextSlideBtn.hide() : nextSlideBtn.show();
 
     $.each(data.results, function (i, item) {
         const id = item.url.slice(29, item.url.length - 1);
@@ -24,9 +37,10 @@ async function renderImages(count) {
 }
 
 function dataModel(id, index) {
-    defaultModel();
+
+    $('#exampleModal').show();
     $('#model-content').hide();
-    $('#model-loading').show();
+    modelLoader.show();
     getModelInfo(singleData[index - 1], id);
 }
 
@@ -45,8 +59,8 @@ function getModelInfo(data, id) {
                 "speciesNames": res[2].map(d => d.name),
                 "homeworld": res[1][0].name
             };
-            console.log(modelInfo)
-            updateSingleModel(modelInfo);
+            //console.log(modelInfo)
+            fillDataInModel(modelInfo);
         });
 }
 
@@ -62,61 +76,24 @@ const getJSON = async (url) => {
     }
 };
 
-// fill the API data into the default model
-function updateSingleModel(modelInfo) {
+// fill the API data into the model
+function fillDataInModel(modelInfo) {
 
-    $('#People-name').html(`${modelInfo.name}`);
-    $('#image-data').attr('src', `https://starwars-visualguide.com/assets/img/characters/${modelInfo.id}.jpg`);
-    $('#People-Gender').html(`Gender :- ${modelInfo.gender}`);
-    $('#People-Birth').html(`Birthday year:- ${modelInfo.birthYear}`);
-    $('#People-Homeworld').html(`Homeworld :- ${modelInfo.homeworld}`);
-    modelInfo.speciesNames.length == 0 ? $('#People-Species').html(`Species:- Unknown`) : $('#People-Species').html(`Species:- ${modelInfo.speciesNames.join(' , ')}`);
-    modelInfo.filmTitles.length == 0 ? $('#People-films').html(`films :- Unknown`) : $('#People-films').html(`films :- ${modelInfo.filmTitles.join(' , ')}`);
+    modalDetails.peopleName.html(`${modelInfo.name}`);
+    modalDetails.imageData.attr('src', `https://starwars-visualguide.com/assets/img/characters/${modelInfo.id}.jpg`);
+    modalDetails.peopleGender.html(`Gender :- ${modelInfo.gender}`);
+    modalDetails.peopleBirth.html(`Birthday year:- ${modelInfo.birthYear}`);
+    modalDetails.Homeworld.html(`Homeworld :- ${modelInfo.homeworld}`);
+    modelInfo.speciesNames.length == 0 ? modalDetails.peopleSpecies.html(`Species:- Unknown`) : modalDetails.peopleSpecies.html(`Species:- ${modelInfo.speciesNames.join(' , ')}`);
+    modelInfo.filmTitles.length == 0 ? modalDetails.films.html(`films :- Unknown`) : modalDetails.films.html(`films :- ${modelInfo.filmTitles.join(' , ')}`);
 
     $('#model-content').show();
-    $('#model-loading').hide();
-}
-
-// for empty model
-function defaultModel() {
-    const modelData = `<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" id="model-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="People-name"></h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="contant">
-                    <img id="image-data" src="" />
-                </div>
-                <div class="detail">
-                    <ul>
-                        <li id="People-Birth"></li>
-                        <li id="People-Gender"></li>
-                        <li id="People-Species"></li>
-                        <li id="People-Homeworld"></li>
-                        <li id="People-films"></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div id="model-loading" style="cursor:pointer">
-            <div class="loader">
-                <img src="https://media.giphy.com/media/5AtXMjjrTMwvK/giphy.gif" alt="" srcset="">
-            </div>
-        </div>
-    </div>
-</div>
-`;
-    $('body').append(modelData);
+    modelLoader.hide();
 }
 
 // render page
 function renderApp(count) {
-    count == 1 ? prevPage.hide() : prevPage.show();
+    count == 1 ? prevSlideBtn.hide() : prevSlideBtn.show();
     images.html(" ");
     pageLoader.show();
     renderImages(count);
@@ -125,7 +102,7 @@ function renderApp(count) {
 function nextSlide() {
     renderApp(++count);
 }
-prevPage.on('click', function (e) {
+prevSlideBtn.on('click', function (e) {
     e.preventDefault();
     renderApp(--count);
 });
