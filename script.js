@@ -21,7 +21,8 @@ var modalDetails = {
 
 // for mapping images with name and pass data onclick
 async function renderImages(count) {
-
+    nextSlideBtn.hide() 
+    prevSlideBtn.hide();
     const res = await fetch(peopleApi + `/?page=${count}`);
     const data = await res.json();
     res.status == 404 ? alert("Data Not available...") || nextSlideBtn.hide() : nextSlideBtn.show();
